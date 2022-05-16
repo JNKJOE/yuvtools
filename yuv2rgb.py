@@ -26,6 +26,17 @@ def read_yuv(yuv, width, height, suffix='none'):
             v_bin = reader.read(height // 2 * width // 2)
             v_array = np.reshape(np.frombuffer(v_bin, 'uint8'), (width // 2, height // 2))
             v_array = cv2.resize(v_array, (0, 0), fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+        elif suffix.__eq__('NV12'):
+            y_bin = reader.read(width * height)
+            y_array = np.reshape(np.frombuffer(y_bin, 'uint8'), (height, width))
+
+            uv_bin = reader.read(width * height // 2)
+            uv_buffer = np.frombuffer(uv_bin, 'uint8')
+            u_array = np.reshape(uv_buffer[0::2], (height // 2, width // 2))
+            u_array = cv2.resize(u_array, (0, 0), fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+
+            v_array = np.reshape(uv_buffer[1::2], (height // 2, width // 2))
+            v_array = cv2.resize(v_array, (0, 0), fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
 
     return [y_array, u_array, v_array]
 

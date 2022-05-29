@@ -50,12 +50,50 @@ def read_yuv(yuv, width, height, suffix='none'):
 
             u_array = np.reshape(uv_buffer[1::2], (height // 2, width // 2))
             u_array = cv2.resize(u_array, (0, 0), fx=2.0, fy=2.0, interpolation=cv2.INTER_CUBIC)
+        elif suffix.__eq__('YUYV'):
+            all_bin = reader.read(width * height * 2)
+            all_buffer = np.frombuffer(all_bin, 'uint8')
+
+            y_array = np.reshape(all_buffer[0::2], (height, width))
+
+            u_array = np.reshape(all_buffer[1::4], (height, width // 2))
+            u_array = cv2.resize(u_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
+
+            v_array = np.reshape(all_buffer[3::4], (height, width // 2))
+            v_array = cv2.resize(v_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
+        elif suffix.__eq__('YVYU'):
+            all_bin = reader.read(width * height * 2)
+            all_buffer = np.frombuffer(all_bin, 'uint8')
+
+            y_array = np.reshape(all_buffer[0::2], (height, width))
+
+            v_array = np.reshape(all_buffer[1::4], (height, width // 2))
+            v_array = cv2.resize(v_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
+
+            u_array = np.reshape(all_buffer[3::4], (height, width // 2))
+            u_array = cv2.resize(u_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
+        elif suffix.__eq__('UYVY'):
+            all_bin = reader.read(width * height * 2)
+            all_buffer = np.frombuffer(all_bin, 'uint8')
+
+            y_array = np.reshape(all_buffer[1::2], (height, width))
+
+            u_array = np.reshape(all_buffer[0::4], (height, width // 2))
+            u_array = cv2.resize(u_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
+
+            v_array = np.reshape(all_buffer[2::4], (height, width // 2))
+            v_array = cv2.resize(v_array, (0, 0), fx=2.0, fy=1.0, interpolation=cv2.INTER_CUBIC)
 
     return [y_array, u_array, v_array]
 
 
 if __name__ == '__main__':
     image_path = '../res/garen380x380.yuv'
+
+    # cv2.imshow('Y', read_yuv(yuv=image_path, width=380, height=380, suffix='YUYV')[0])
+    # cv2.imshow('U', read_yuv(yuv=image_path, width=380, height=380, suffix='YUYV')[1])
+    # cv2.imshow('V', read_yuv(yuv=image_path, width=380, height=380, suffix='YUYV')[2])
+    
     img_yuv = cv2.merge(read_yuv(yuv=image_path, width=380, height=380, suffix='I420'))
     rgb = cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
     cv2.imshow("RGB", rgb)
